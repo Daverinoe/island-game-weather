@@ -15,12 +15,12 @@ void fragment(){
 	vec2 pos = UV;
 	vec2 dxdy = SCREEN_PIXEL_SIZE;
 	
-	vec4 wLeft = texture(w, pos - dxdy.x);
-	vec4 wRight = texture(w, pos + dxdy.x);
-	vec4 wBottom = texture(w, pos - dxdy.y);
-	vec4 wTop = texture(w, pos + dxdy.y);
+	vec4 wLeft = texture(w, vec2(pos.x - dxdy.x, pos.y)) * 2.0 - 1.0;
+	vec4 wRight = texture(w, vec2(pos.x + dxdy.x, pos.y)) * 2.0 - 1.0;
+	vec4 wBottom = texture(w, vec2(pos.x, pos.y - dxdy.y)) * 2.0 - 1.0;
+	vec4 wTop = texture(w, vec2(pos.x, pos.y + dxdy.y)) * 2.0 - 1.0;
 	
-	float divergence = (wRight.x - wLeft.x) / dxdy.x + (wTop.y - wBottom.y) / dxdy.y;
+	float divergence = (wRight.x - wLeft.x + wTop.y - wBottom.y) * 0.5;
 	
 	// Return the divergence field encoded into the R channel
 	COLOR = vec4(divergence, 0.0, 0.0, 1.0);

@@ -5,29 +5,6 @@ code = "shader_type canvas_item;
 
 uniform sampler2D divergence; // Divergence of the intermediate velocity
 
-float samplePressure(vec2 pos, vec2 border, sampler2D div){
-	
-	// We want the derivative of the pressure at the borders to be 0, so if
-	// we are at the border, just copy the adjacent value.
-	
-	if (pos.x > 1.0 - border.x){
-		return texture(div, vec2(pos.x - border.x, pos.y)).x;
-		
-	} else if (pos.x < border.x){
-		return texture(div, vec2(border.x, pos.y)).x;
-		
-	} else if (pos.y > 1.0 - border.y){
-		return texture(div, vec2(pos.x, pos.y - border.y)).x;
-		
-	} else if (pos.y < border.y){
-		return texture(div, vec2(pos.x, border.y)).x;
-		
-	} else {
-		return texture(div, pos).x;
-	}
-	
-}
-
 void fragment(){
 	// Constants for the Jacobi calculation (taken from Nvidia paper)
 	float alpha = -1.0;
@@ -39,15 +16,17 @@ void fragment(){
 	vec2 dxdy = SCREEN_PIXEL_SIZE;
 	
 	// Still want to sample over the entire divergence field, so UV here???
-	float div = texture(divergence, UV).x;
-	float left = samplePressure(vec2(pos.x - dxdy.x, pos.y), dxdy, SCREEN_TEXTURE);
-	float right = samplePressure(vec2(pos.x + dxdy.x, pos.y), dxdy, SCREEN_TEXTURE);
-	float bottom = samplePressure(vec2(pos.x, pos.y - dxdy.y), dxdy, SCREEN_TEXTURE);
-	float top = samplePressure(vec2(pos.x, pos.y + dxdy.y), dxdy, SCREEN_TEXTURE);
+	float div = texture(divergence, UV).x * 2.0 - 1.0;
+	
+	// Grab surrounding points
+	float left = texture(SCREEN_TEXTURE, vec2(pos.x - dxdy.x, pos.y)).x * 2.0 - 1.0;
+	float right = texture(SCREEN_TEXTURE, vec2(pos.x + dxdy.x, pos.y)).x * 2.0 - 1.0;
+	float bottom = texture(SCREEN_TEXTURE, vec2(pos.x, pos.y - dxdy.y)).x * 2.0 - 1.0;
+	float top = texture(SCREEN_TEXTURE, vec2(pos.x, pos.y + dxdy.y)).x * 2.0 - 1.0;
 	
 	// Compute single Jacobi iteration
 	float pressureEstimate = (left + right + bottom + top + (alpha * div)) * rbeta;
 	
 	// Return pressure estimate in R channel
-	COLOR = vec4(pressureEstimate, 0.0, 0.0, 1.0);
+	COLOR = vec4(pressureEstimate * 0.5 + 0.5, 0.0, 0.0, 1.0);
 }"
