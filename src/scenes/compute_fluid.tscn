@@ -1,0 +1,136 @@
+[gd_scene load_steps=20 format=2]
+
+[ext_resource path="res://src/shaders/advection.tres" type="Shader" id=1]
+[ext_resource path="res://src/shaders/divergence.tres" type="Shader" id=2]
+[ext_resource path="res://src/shaders/jacobi.tres" type="Shader" id=3]
+[ext_resource path="res://src/shaders/subtract_pressure.tres" type="Shader" id=4]
+
+[sub_resource type="ViewportTexture" id=7]
+viewport_path = NodePath("ViewportContainer/subtractPressure")
+
+[sub_resource type="ViewportTexture" id=8]
+viewport_path = NodePath("ViewportContainer/subtractPressure")
+
+[sub_resource type="ShaderMaterial" id=2]
+resource_local_to_scene = true
+shader = ExtResource( 1 )
+shader_param/dt = 0.017
+shader_param/u = SubResource( 7 )
+shader_param/x = SubResource( 8 )
+
+[sub_resource type="ImageTexture" id=14]
+size = Vector2( 1, 1 )
+
+[sub_resource type="ViewportTexture" id=9]
+viewport_path = NodePath("ViewportContainer/computeAdvection")
+
+[sub_resource type="ShaderMaterial" id=3]
+resource_local_to_scene = true
+shader = ExtResource( 2 )
+shader_param/w = SubResource( 9 )
+
+[sub_resource type="ImageTexture" id=15]
+size = Vector2( 1, 1 )
+
+[sub_resource type="ViewportTexture" id=10]
+viewport_path = NodePath("ViewportContainer/computeDivergence")
+
+[sub_resource type="ShaderMaterial" id=5]
+resource_local_to_scene = true
+shader = ExtResource( 3 )
+shader_param/divergence = SubResource( 10 )
+
+[sub_resource type="ImageTexture" id=16]
+size = Vector2( 1, 1 )
+
+[sub_resource type="ViewportTexture" id=11]
+viewport_path = NodePath("ViewportContainer/computePressure")
+
+[sub_resource type="ViewportTexture" id=12]
+viewport_path = NodePath("ViewportContainer/computeAdvection")
+
+[sub_resource type="ShaderMaterial" id=6]
+resource_local_to_scene = true
+shader = ExtResource( 4 )
+shader_param/pressure = SubResource( 11 )
+shader_param/velocity = SubResource( 12 )
+
+[sub_resource type="ImageTexture" id=17]
+size = Vector2( 1, 1 )
+
+[sub_resource type="ViewportTexture" id=13]
+viewport_path = NodePath("ViewportContainer/subtractPressure")
+
+[node name="fluid" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="ViewportContainer" type="ViewportContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+stretch = true
+
+[node name="computeAdvection" type="Viewport" parent="ViewportContainer"]
+size = Vector2( 1024, 600 )
+
+[node name="advection" type="TextureRect" parent="ViewportContainer/computeAdvection"]
+material = SubResource( 2 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 40.0
+margin_bottom = 40.0
+texture = SubResource( 14 )
+expand = true
+
+[node name="computeDivergence" type="Viewport" parent="ViewportContainer"]
+size = Vector2( 1024, 600 )
+
+[node name="divergence" type="TextureRect" parent="ViewportContainer/computeDivergence"]
+material = SubResource( 3 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 40.0
+margin_bottom = 40.0
+texture = SubResource( 15 )
+expand = true
+
+[node name="computePressure" type="Viewport" parent="ViewportContainer"]
+size = Vector2( 1024, 600 )
+
+[node name="tenIteractions" type="Control" parent="ViewportContainer/computePressure"]
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="computeJacobi" type="Control" parent="ViewportContainer/computePressure/tenIteractions"]
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="BackBufferCopy" type="BackBufferCopy" parent="ViewportContainer/computePressure/tenIteractions/computeJacobi"]
+copy_mode = 2
+
+[node name="pressure" type="TextureRect" parent="ViewportContainer/computePressure/tenIteractions/computeJacobi"]
+material = SubResource( 5 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 40.0
+margin_bottom = 40.0
+texture = SubResource( 16 )
+expand = true
+
+[node name="subtractPressure" type="Viewport" parent="ViewportContainer"]
+size = Vector2( 1024, 600 )
+
+[node name="subtractPressure" type="TextureRect" parent="ViewportContainer/subtractPressure"]
+material = SubResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 40.0
+margin_bottom = 40.0
+texture = SubResource( 17 )
+expand = true
+
+[node name="final_output" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = SubResource( 13 )
+expand = true

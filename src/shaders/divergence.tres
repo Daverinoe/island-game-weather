@@ -1,0 +1,28 @@
+[gd_resource type="Shader" format=2]
+
+[resource]
+code = "shader_type canvas_item;
+
+uniform sampler2D w; // Intermediate velocity that is full of divergence.
+
+void fragment(){
+	// We want to compute the gradient of the velocity field.
+	// This is given simply by the sum of the partial derivatives of the field in each direction
+	// weighted by the step size.
+	// In this case, the partial derivative is simply the difference of the field over the size
+	// of a pixel, and the step size is the pixel size.
+	
+	vec2 pos = UV;
+	vec2 dxdy = SCREEN_PIXEL_SIZE;
+	
+	vec4 wLeft = texture(w, pos - dxdy.x);
+	vec4 wRight = texture(w, pos + dxdy.x);
+	vec4 wBottom = texture(w, pos - dxdy.y);
+	vec4 wTop = texture(w, pos + dxdy.y);
+	
+	float divergence = (wRight.x - wLeft.x) / dxdy.x + (wTop.y - wBottom.y) / dxdy.y;
+	
+	// Return the divergence field encoded into the R channel
+	COLOR = vec4(divergence, 0.0, 0.0, 1.0);
+	
+}"

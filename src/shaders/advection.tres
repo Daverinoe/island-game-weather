@@ -1,0 +1,55 @@
+[gd_resource type="Shader" format=2]
+
+[resource]
+code = "shader_type canvas_item;
+
+// Based heavily off of a project I found in a reddit post somewhere.
+// Quantities are named as they are to be as close to possible to literature
+// standard norms.
+
+uniform float dt; // Timestep
+
+uniform sampler2D u; // Input velocity
+uniform sampler2D x; // Quantity to advect (advection just means moving under it's own momentum)
+
+vec2 bilinearInterpolation(sampler2D vecField, vec2 oldPos, vec2 dxdy){
+	// Bring position onto the grid
+	vec2 pos = oldPos / dxdy - 0.5;
+	
+	// Break position into integer and fractional parts for mixing
+	vec2 fraction = fract(pos);
+	vec2 integer = floor(pos);
+	
+	// Find the weighted parts for the four quadrants of the square
+	vec2 posBottomLeft = texture(vecField, (integer + vec2(0.5, 0.5)) * dxdy).xy;
+	vec2 posBottomRight = texture(vecField, (integer + vec2(0.5, 1.5)) * dxdy).xy;
+	vec2 posTopLeft = texture(vecField, (integer + vec2(1.5, 0.5)) * dxdy).xy;
+	vec2 posTopRight = texture(vecField, (integer + vec2(1.5, 1.5)) * dxdy).xy;
+	
+	// Mix the parts, weighted by the fractions
+	return mix(mix(posTopLeft, posBottomLeft, fraction.x), mix(posTopRight, posBottomRight, fraction.x), fraction.y);
+}
+
+void fragment(){
+	// Store velocity x in the red component, and velocity y in the green component.
+	// Use the \"look backward\" method that nvidia pioneered
+	// Rename UV to pos to save my little brain
+	vec2 pos = UV;
+	
+	// Our \"grid\" are the pixels, but we could change that here to an arbitrary grid size
+	vec2 dxdy = SCREEN_PIXEL_SIZE;
+	
+	vec2 oldPos = pos - dt * dxdy * (texture(u, pos).xy);
+	vec2 outputVelocity = bilinearInterpolation(x, oldPos, dxdy).xy;
+	
+	// Apply boundary conditions
+	if (pos.y > 1.0 - dxdy.y || pos.y < dxdy.y){
+		outputVelocity.y = 0.0;
+	}
+	if (pos.x > 1.0 - dxdy.x || pos.x < dxdy.x){
+		outputVelocity.x = 0.0;
+	}
+	
+	// Return new vector field
+	COLOR = vec4(outputVelocity, 0.0, 1.0);
+}"
