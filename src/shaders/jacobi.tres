@@ -16,17 +16,17 @@ void fragment(){
 	vec2 dxdy = SCREEN_PIXEL_SIZE;
 	
 	// Still want to sample over the entire divergence field, so UV here???
-	float div = texture(divergence, UV).x * 2.0 - 1.0;
+	float div = texture(divergence, UV).x;
 	
 	// Grab surrounding points
-	float left = texture(SCREEN_TEXTURE, vec2(pos.x - dxdy.x, pos.y)).x * 2.0 - 1.0;
-	float right = texture(SCREEN_TEXTURE, vec2(pos.x + dxdy.x, pos.y)).x * 2.0 - 1.0;
-	float bottom = texture(SCREEN_TEXTURE, vec2(pos.x, pos.y - dxdy.y)).x * 2.0 - 1.0;
-	float top = texture(SCREEN_TEXTURE, vec2(pos.x, pos.y + dxdy.y)).x * 2.0 - 1.0;
+	float left = texture(SCREEN_TEXTURE, vec2(pos.x - dxdy.x, pos.y)).x;
+	float right = texture(SCREEN_TEXTURE, vec2(pos.x + dxdy.x, pos.y)).x;
+	float bottom = texture(SCREEN_TEXTURE, vec2(pos.x, pos.y - dxdy.y)).x;
+	float top = texture(SCREEN_TEXTURE, vec2(pos.x, pos.y + dxdy.y)).x;
 	
 	// Compute single Jacobi iteration
-	float pressureEstimate = (left + right + bottom + top + (alpha * div)) * rbeta;
+	vec2 pressureEstimate = vec2((left + right + bottom + top + (alpha * div)) * rbeta);
 	
 	// Return pressure estimate in R channel
-	COLOR = vec4(pressureEstimate * 0.5 + 0.5, 0.0, 0.0, 1.0);
+	COLOR = vec4(pressureEstimate, 0.0, 1.0);
 }"

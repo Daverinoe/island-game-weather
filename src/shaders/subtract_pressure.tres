@@ -13,10 +13,10 @@ void fragment(){
 	vec2 dxdy = SCREEN_PIXEL_SIZE;
 	
 	// Calculate the pressure gradient
-	float left = texture(pressure, vec2(pos.x - dxdy.x, pos.y)).x * 2.0 - 1.0;
-	float right = texture(pressure, vec2(pos.x + dxdy.x, pos.y)).x * 2.0 - 1.0;
-	float bottom = texture(pressure, vec2(pos.x, pos.y - dxdy.y)).x * 2.0 - 1.0;
-	float top = texture(pressure, vec2(pos.x, pos.y + dxdy.y)).x * 2.0 - 1.0;
+	float left = texture(pressure, vec2(pos.x - dxdy.x, pos.y)).x;
+	float right = texture(pressure, vec2(pos.x + dxdy.x, pos.y)).x;
+	float bottom = texture(pressure, vec2(pos.x, pos.y - dxdy.y)).x;
+	float top = texture(pressure, vec2(pos.x, pos.y + dxdy.y)).x;
 	
 	vec2 gradient = (vec2(right, top) - vec2(left, bottom)) * 0.5;
 	
