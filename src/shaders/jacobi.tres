@@ -15,9 +15,23 @@ void fragment(){
 	
 	vec2 dxdy = SCREEN_PIXEL_SIZE;
 	
+	// Apply boundary conditions
+	if (pos.x < dxdy.x){
+		pos.x = dxdy.x;
+	}
+	if (pos.y < dxdy.y){
+		pos.y = dxdy.y;
+	}
+	if (pos.x > 1.0 - dxdy.x){
+		pos.x = 1.0 - dxdy.x;
+	}
+	if (pos.y > 1.0 - dxdy.y){
+		pos.y = 1.0 - dxdy.y;
+	}
+	
 	// Still want to sample over the entire divergence field, so UV here???
 	float div = texture(divergence, UV).x;
-	
+		
 	// Grab surrounding points
 	float left = texture(SCREEN_TEXTURE, vec2(pos.x - dxdy.x, pos.y)).x;
 	float right = texture(SCREEN_TEXTURE, vec2(pos.x + dxdy.x, pos.y)).x;

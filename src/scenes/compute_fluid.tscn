@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=35 format=2]
 
 [ext_resource path="res://src/shaders/advection.tres" type="Shader" id=1]
 [ext_resource path="res://src/shaders/divergence.tres" type="Shader" id=2]
@@ -6,9 +6,8 @@
 [ext_resource path="res://src/shaders/subtract_pressure.tres" type="Shader" id=4]
 [ext_resource path="res://src/scenes/advection.gd" type="Script" id=5]
 [ext_resource path="res://src/shaders/confine_vorticies.gdshader" type="Shader" id=6]
-
-[sub_resource type="ViewportTexture" id=18]
-viewport_path = NodePath("velocityComputations/subtractPressure")
+[ext_resource path="res://src/shaders/advect_material.tres" type="Shader" id=7]
+[ext_resource path="res://src/shaders/view_shader.gdshader" type="Shader" id=8]
 
 [sub_resource type="ViewportTexture" id=7]
 viewport_path = NodePath("velocityComputations/subtractPressure")
@@ -19,7 +18,7 @@ viewport_path = NodePath("velocityComputations/subtractPressure")
 [sub_resource type="ShaderMaterial" id=2]
 resource_local_to_scene = true
 shader = ExtResource( 1 )
-shader_param/dt = 0.0472315
+shader_param/dt = 0.0291667
 shader_param/u = SubResource( 7 )
 shader_param/x = SubResource( 8 )
 
@@ -35,8 +34,8 @@ viewport_path = NodePath("velocityComputations/computeVorticity")
 [sub_resource type="ShaderMaterial" id=20]
 resource_local_to_scene = true
 shader = ExtResource( 6 )
-shader_param/confinement_strength = 4.0
-shader_param/dt = null
+shader_param/confinement_strength = 0.135
+shader_param/dt = 0.0291667
 shader_param/u = SubResource( 21 )
 shader_param/vorticities = SubResource( 22 )
 
@@ -77,15 +76,49 @@ shader_param/velocity = SubResource( 12 )
 [sub_resource type="ImageTexture" id=17]
 size = Vector2( 1, 1 )
 
+[sub_resource type="ViewportTexture" id=25]
+viewport_path = NodePath("velocityComputations/subtractPressure")
+
+[sub_resource type="ViewportTexture" id=26]
+viewport_path = NodePath("inkComputations/advectInk")
+
+[sub_resource type="ShaderMaterial" id=23]
+resource_local_to_scene = true
+shader = ExtResource( 7 )
+shader_param/dt = 0.0291667
+shader_param/u = SubResource( 25 )
+shader_param/x = SubResource( 26 )
+
+[sub_resource type="ImageTexture" id=24]
+size = Vector2( 1, 1 )
+
+[sub_resource type="Gradient" id=29]
+offsets = PoolRealArray( 0, 0.340517, 1 )
+colors = PoolColorArray( 0.306641, 0.121711, 0.0265107, 1, 0.857422, 0.855665, 0.407708, 1, 1, 0, 0.925781, 1 )
+
+[sub_resource type="GradientTexture" id=30]
+gradient = SubResource( 29 )
+
+[sub_resource type="ViewportTexture" id=31]
+viewport_path = NodePath("inkComputations/advectInk")
+
+[sub_resource type="ShaderMaterial" id=28]
+resource_local_to_scene = true
+shader = ExtResource( 8 )
+shader_param/max_intensity = 2.0
+shader_param/view = SubResource( 31 )
+shader_param/gradient = SubResource( 30 )
+
+[sub_resource type="ImageTexture" id=32]
+size = Vector2( 1, 1 )
+
 [node name="fluid" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-
-[node name="final_output" type="TextureRect" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-texture = SubResource( 18 )
-expand = true
+__meta__ = {
+"_edit_group_": true,
+"_edit_lock_": true
+}
 
 [node name="velocityComputations" type="ViewportContainer" parent="."]
 anchor_right = 1.0
@@ -457,4 +490,30 @@ material = SubResource( 6 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 texture = SubResource( 17 )
+expand = true
+
+[node name="inkComputations" type="ViewportContainer" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="advectInk" type="Viewport" parent="inkComputations"]
+size = Vector2( 1024, 600 )
+handle_input_locally = false
+render_target_v_flip = true
+render_target_clear_mode = 2
+render_target_update_mode = 3
+
+[node name="ink" type="TextureRect" parent="inkComputations/advectInk"]
+material = SubResource( 23 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = SubResource( 24 )
+expand = true
+script = ExtResource( 5 )
+
+[node name="final_output" type="TextureRect" parent="."]
+material = SubResource( 28 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = SubResource( 32 )
 expand = true

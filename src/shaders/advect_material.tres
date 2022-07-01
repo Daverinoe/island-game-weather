@@ -43,7 +43,7 @@ void fragment(){
 	vec2 outputVelocity = bilinearInterpolation(x, oldPos, dxdy);
 	
 	if (pos.x > 0.49 && pos.x < 0.51 && pos.y > 0.49 && pos.y < 0.51){
-		outputVelocity.x += 1.0;
+		outputVelocity.x = 1.0;
 	}
 	
 	// Apply boundary conditions
