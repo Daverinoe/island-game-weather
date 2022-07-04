@@ -18,7 +18,9 @@ viewport_path = NodePath("velocityComputations/subtractPressure")
 [sub_resource type="ShaderMaterial" id=2]
 resource_local_to_scene = true
 shader = ExtResource( 1 )
-shader_param/dt = 0.0291667
+shader_param/dt = 0.0293231
+shader_param/westerly = 10.0
+shader_param/easterly = 0.0
 shader_param/u = SubResource( 7 )
 shader_param/x = SubResource( 8 )
 
@@ -35,7 +37,7 @@ viewport_path = NodePath("velocityComputations/computeVorticity")
 resource_local_to_scene = true
 shader = ExtResource( 6 )
 shader_param/confinement_strength = 0.135
-shader_param/dt = 0.0291667
+shader_param/dt = 0.0293231
 shader_param/u = SubResource( 21 )
 shader_param/vorticities = SubResource( 22 )
 
@@ -85,7 +87,7 @@ viewport_path = NodePath("inkComputations/advectInk")
 [sub_resource type="ShaderMaterial" id=23]
 resource_local_to_scene = true
 shader = ExtResource( 7 )
-shader_param/dt = 0.0291667
+shader_param/dt = 0.0293231
 shader_param/u = SubResource( 25 )
 shader_param/x = SubResource( 26 )
 

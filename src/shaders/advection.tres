@@ -12,6 +12,9 @@ uniform float dt; // Timestep
 uniform sampler2D u; // Input velocity
 uniform sampler2D x; // Quantity to advect (advection just means moving under it's own momentum)
 
+uniform float westerly; // Western wind strength
+uniform float easterly; // Eastern wind strength
+
 vec2 bilinearInterpolation(sampler2D vecField, vec2 oldPos, vec2 dxdy){
 	// Bring position onto the grid, then move to center of local grid.
 	vec2 pos = oldPos / dxdy - 0.5;
@@ -41,18 +44,21 @@ void fragment(){
 	
 	vec2 oldPos = pos - dt * dxdy * (texture(u, pos).xy);
 	vec2 outputVelocity = bilinearInterpolation(x, oldPos, dxdy);
-	
-	if (pos.x > 0.49 && pos.x < 0.51 && pos.y > 0.49 && pos.y < 0.51){
-		outputVelocity.x += 1.0;
-	}
-	
+		
 	// Apply boundary conditions
-	if (pos.x < dxdy.x || pos.x > 1.0 - dxdy.x){
-		outputVelocity.x = 0.0;
-	}
 	if (pos.y < dxdy.y || pos.y > 1.0 - dxdy.y){
+		outputVelocity = vec2(0.0);
+	}
+	if (pos.x < dxdy.x){
+		outputVelocity.x = westerly;
 		outputVelocity.y = 0.0;
 	}
+	if (pos.x > 1.0 - dxdy.x){
+		outputVelocity.x = -easterly;
+		outputVelocity.y = 0.0;
+	}
+	
+	
 	
 	// Return new vector field
 	COLOR = vec4(outputVelocity, 0.0, 1.0);
